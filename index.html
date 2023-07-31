@@ -9,6 +9,7 @@
     body {
       margin: 0;
       padding: 0;
+      margin-bottom: 50px;
     }
 
     #videoBackground {
@@ -105,6 +106,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
+
     const savedSteamID = localStorage.getItem('savedSteamID');
 
 
@@ -192,9 +194,9 @@
         { title: 'Статистика зброї та боєприпасів', stats: [] },
         { title: 'Статистика вбивств тварин', stats: [] },
         { title: 'Статистика ігрових інвентарів', stats: [] },
-        { title: 'Статистика інше', stats: [] }, // Нова група
+        { title: 'Статистика інше', stats: [] }, 
       ];
-
+      
       stats.forEach(stat => {
         if (['deaths', 'kill_player', 'headshot'].includes(stat.name)) {
           statGroups[0].stats.push(stat);
@@ -205,7 +207,7 @@
         } else if (['item_drop', 'blueprint_studied', 'INVENTORY_OPENED', 'CRAFTING_OPENED'].includes(stat.name)) {
           statGroups[3].stats.push(stat);
         } else if (['kill_scientist', 'horse_distance_ridden', 'destroyed_barrels', 'acquired_scrap', 'acquired_metal.ore', 'acquired_lowgradefuel', 'seconds_speaking', 'calories_consumed', 'water_consumed', 'harvested_wood', 'harvested_stones'].includes(stat.name)) {
-          statGroups[4].stats.push(stat); 
+          statGroups[4].stats.push(stat);
         }
       });
 
@@ -213,14 +215,33 @@
     }
 
     function createGroupHTML(title, stats) {
-      const statItems = stats.map(stat => `<div class="stat-item"><strong>${translateStatName(stat.name)}:</strong> ${stat.value}</div>`);
-      return `
-            <div class="group-container">
-                <div class="group-title">${title}</div>
-                ${statItems.join('')}
-            </div>
-        `;
+    const statItems = stats.map(stat => `<div class="stat-item"><strong>${translateStatName(stat.name)}:</strong> ${stat.value}</div>`);
+    return `
+      <div class="group-container">
+        <button class="group-title" onclick="toggleGroup(this)">
+          ${title}
+          <i class="fas ${stats.length > 0 ? 'fa-minus' : 'fa-plus'}"></i>
+        </button>
+        <div class="group-content" style="display: ${stats.length > 0 ? 'block' : 'none'};">
+          ${statItems.join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function toggleGroup(button) {
+    const content = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    if (content.style.display === 'block') {
+      content.style.display = 'none';
+      icon.classList.remove('fa-minus');
+      icon.classList.add('fa-plus');
+    } else {
+      content.style.display = 'block';
+      icon.classList.remove('fa-plus');
+      icon.classList.add('fa-minus');
     }
+  }
 
     function translateStatName(statName) {
       switch (statName) {
@@ -256,5 +277,5 @@
     }
   </script>
 </body>
-</html>
 
+</html>
