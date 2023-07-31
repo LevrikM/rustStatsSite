@@ -9,7 +9,6 @@
     body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
     }
 
     #videoBackground {
@@ -82,7 +81,7 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="https://github.com/LevrikM" target="_blank">
+          <a class="nav-link" href="https://levrikm.github.io/" target="_blank">
             <i class="fab fa-github"></i>
           </a>
         </li>
@@ -100,7 +99,7 @@
     <div id="statsContainer" class="mt-4"></div>
   </div>
 
-  
+
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
@@ -116,21 +115,24 @@
     function getRustStats() {
       const steamID = document.getElementById('steamID').value;
 
-      localStorage.setItem('savedSteamID', steamID);
 
       fetch(`http://localhost:3000/getRustStats/${steamID}`)
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Помилка при отриманні статистики');
-            }
-            return response.json();
+          if (!response.ok) {
+            throw new Error('Помилка при отриманні статистики');
+          }
+          return response.json();
         })
-        .then(data => displayStats(data.playerstats.stats))
+        .then(data => {
+          localStorage.setItem('savedSteamID', steamID);
+          displayStats(data.playerstats.stats)
+
+        })
         .catch(error => {
-            const errorContainer = document.getElementById('errorContainer');
-            statsContainer.innerHTML = '';
-            errorContainer.innerHTML = error.message;
-            console.error(error);
+          const errorContainer = document.getElementById('errorContainer');
+          statsContainer.innerHTML = '';
+          errorContainer.innerHTML = error.message;
+          console.error(error);
         });
     }
 
@@ -165,6 +167,15 @@
         'harvested_stones',
         'MAP_OPENED',
         'CUPBOARD_OPENED',
+        'kill_scientist',
+        'horse_distance_ridden',
+        'destroyed_barrels',
+        'acquired_scrap',
+        'acquired_metal.ore',
+        'acquired_lowgradefuel',
+        'seconds_speaking',
+        'calories_consumed',
+        'water_consumed',
       ];
 
       const filteredStats = stats.filter(stat => selectedStats.includes(stat.name));
@@ -181,6 +192,7 @@
         { title: 'Статистика зброї та боєприпасів', stats: [] },
         { title: 'Статистика вбивств тварин', stats: [] },
         { title: 'Статистика ігрових інвентарів', stats: [] },
+        { title: 'Статистика інше', stats: [] }, // Нова група
       ];
 
       stats.forEach(stat => {
@@ -192,6 +204,8 @@
           statGroups[2].stats.push(stat);
         } else if (['item_drop', 'blueprint_studied', 'INVENTORY_OPENED', 'CRAFTING_OPENED'].includes(stat.name)) {
           statGroups[3].stats.push(stat);
+        } else if (['kill_scientist', 'horse_distance_ridden', 'destroyed_barrels', 'acquired_scrap', 'acquired_metal.ore', 'acquired_lowgradefuel', 'seconds_speaking', 'calories_consumed', 'water_consumed', 'harvested_wood', 'harvested_stones'].includes(stat.name)) {
+          statGroups[4].stats.push(stat); 
         }
       });
 
@@ -227,10 +241,20 @@
         case 'harvested_wood': return 'Зібрано деревини';
         case 'harvested_stones': return 'Зібрано каменів';
         case 'MAP_OPENED': return 'Відкрито карту';
-        case 'CUPBOARD_OPENED': return 'Відкрито шафку';
+        case 'CUPBOARD_OPENED': return 'Відкрито шафу';
+        case 'kill_scientist': return 'Вбивств учених';
+        case 'horse_distance_ridden': return 'Пройдено відстані на коні';
+        case 'destroyed_barrels': return 'Знищено бочок';
+        case 'acquired_scrap': return 'Добуто скрапу';
+        case 'acquired_metal.ore': return 'Добуто металевої руди';
+        case 'acquired_lowgradefuel': return 'Добутого низькокласного пального';
+        case 'seconds_speaking': return 'Час говоріння(сек)';
+        case 'calories_consumed': return 'Спожито калорій';
+        case 'water_consumed': return 'Спожито води';
         default: return statName;
       }
     }
   </script>
 </body>
 </html>
+
