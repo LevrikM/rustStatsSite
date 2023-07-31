@@ -95,6 +95,7 @@
     <div class="form-group">
       <input type="text" class="form-control" id="steamID" name="SteamID64" placeholder="Введіть SteamID64">
     </div>
+    <div id="errorContainer" class="mt-2 text-danger"></div>
     <button class="btn btn-primary mt-2" onclick="getRustStats()">Отримати статистику</button>
     <div id="statsContainer" class="mt-4"></div>
   </div>
@@ -118,17 +119,30 @@
       localStorage.setItem('savedSteamID', steamID);
 
       fetch(`http://localhost:3000/getRustStats/${steamID}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Помилка при отриманні статистики');
+            }
+            return response.json();
+        })
         .then(data => displayStats(data.playerstats.stats))
-        .catch(error => console.error('Помилка при отриманні статистики:', error));
+        .catch(error => {
+            const errorContainer = document.getElementById('errorContainer');
+            statsContainer.innerHTML = '';
+            errorContainer.innerHTML = error.message;
+            console.error(error);
+        });
     }
 
     function displayStats(stats) {
       const statsContainer = document.getElementById('statsContainer');
+      const errorContainer = document.getElementById('errorContainer');
+
       statsContainer.innerHTML = '';
+      errorContainer.innerHTML = '';
 
       if (!stats || stats.length === 0) {
-        statsContainer.innerHTML = '<p class="text-danger">Статистика не знайдена для даного профілю Steam.</p>';
+        errorContainer.innerHTML = 'Статистика не знайдена для даного профілю Steam.';
         return;
       }
 
