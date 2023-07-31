@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Steam Profile Stats</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #videoBackground {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .stats-container {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .stat-item {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+    <video autoplay loop muted playsinline id="videoBackground">
+        <source src="https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/items/252490/e30f0dd8a20306af23cde43c98218227963af9a0.webm" type="video/mp4">
+        Ваш браузер не підтримує відео.
+    </video>
+    <div class="container mt-5">
+    <h1 class="mb-4 text-white">Статистика з гри Rust</h1>
+    <div class="form-group">
+        <input type="text" class="form-control" id="steamID" placeholder="Введіть SteamID64">
+    </div>
+    <button class="btn btn-primary mt-2" onclick="getRustStats()">Отримати статистику</button>
+    <div id="statsContainer" class="mt-4"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+    function getRustStats() {
+        const steamID = document.getElementById('steamID').value;
+
+        fetch(`http://localhost:3000/getRustStats/${steamID}`)
+        .then(response => response.json())
+        .then(data => displayStats(data.playerstats.stats))
+        .catch(error => console.error('Помилка при отриманні статистики:', error));
+    }
+
+    function displayStats(stats) {
+        const statsContainer = document.getElementById('statsContainer');
+        statsContainer.innerHTML = '';
+
+        if (!stats || stats.length === 0) {
+        statsContainer.innerHTML = '<p class="text-danger">Статистика не знайдена для даного профілю Steam.</p>';
+        return;
+        }
+
+        const selectedStats = [
+        'deaths',
+        'bullet_fired',
+        'arrow_fired',
+        'rocket_fired',
+        'kill_player',
+        'headshot',
+        ];
+
+        const filteredStats = stats.filter(stat => selectedStats.includes(stat.name));
+        const statItems = filteredStats.map(stat => `<div class="stat-item"><strong>${translateStatName(stat.name)}:</strong> ${stat.value}</div>`);
+        statsContainer.innerHTML = `<div class="stats-container">${statItems.join('')}</div>`;
+    }
+
+    function translateStatName(statName) {
+        switch (statName) {
+        case 'deaths': return 'Смертей';
+        case 'bullet_fired': return 'Вистрілів пулею';
+        case 'arrow_fired': return 'Вистрілів стрілою';
+        case 'rocket_fired': return 'Вистрілів ракетами';
+        case 'kill_player': return 'Вбивств гравців';
+        case 'headshot': return 'Хедшотів';
+
+
+        default: return statName;
+        }
+    }
+    </script>
+</body>
+</html>
