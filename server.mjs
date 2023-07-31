@@ -2,11 +2,12 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const port = 3000;
-app.use(express.static('public'));
-const apiKey = '47AD43A9865F42F345A24FDEE3313397';
+const apiKey = process.env.STEAM_API_KEY;
 
 app.get('/getRustStats/:steamID', async (req, res) => {
   try {
